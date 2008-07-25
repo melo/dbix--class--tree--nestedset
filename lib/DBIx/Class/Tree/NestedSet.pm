@@ -73,9 +73,13 @@ sub insert {
 
     my $row  = $self->next::method(@_);
 
-    $row->update({
-        $root => $row->get_column( ($row->result_source->primary_columns)[0] ),
-    }) unless defined $row->$root;
+    if (!defined $row->$root) {
+        $row->update({
+            $root => $row->get_column( ($row->result_source->primary_columns)[0] ),
+        });
+
+        $row->discard_changes;
+    }
 
     return $row;
 }
