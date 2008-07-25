@@ -105,4 +105,22 @@ sub create_related {
     return $self->next::method($rel => $col_data);
 }
 
+sub search_related {
+    my ($self, $rel, $cond, @rest) = @_;
+
+    if ($rel eq 'children') {
+        my $pk = ($self->result_source->primary_columns)[0];
+
+        $cond ||= {};
+        $cond->{"parent.$pk"} = $self->$pk,
+    }
+
+    return $self->next::method($rel, $cond, @rest);
+}
+
+{
+    no warnings 'once';
+    *search_related_rs = \&search_related;
+}
+
 1;
