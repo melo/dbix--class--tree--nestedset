@@ -21,7 +21,7 @@ sub tree_columns {
         $class->belongs_to(
             root => $class,
             \%join_cond,
-            { where => 'me.left = 1', },
+            { where => \"me.$left = 1", },
         );
 
         $class->has_many(
