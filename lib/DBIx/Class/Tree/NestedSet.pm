@@ -11,6 +11,14 @@ sub tree_columns {
     my ($class, $args) = @_;
 
     if (defined $args) {
+        $args = {
+            root_rel     => 'root',
+            nodes_rel    => 'nodes',
+            children_rel => 'children',
+            parents_rel  => 'parents',
+            %{ $args },
+        };
+
         my ($root, $left, $right) = map {
             $args->{"${_}_column"}
         } qw/root left right/;
@@ -19,18 +27,18 @@ sub tree_columns {
         my %join_cond = ( "foreign.$root" => "self.$root" );
 
         $class->belongs_to(
-            root => $class,
+            $args->{root_rel} => $class,
             \%join_cond,
             { where => \"me.$left = 1", },
         );
 
         $class->has_many(
-            nodes => $class,
+            $args->{nodes_rel} => $class,
             \%join_cond,
         );
 
         $class->has_many(
-            children => $class,
+            $args->{children_rel} => $class,
             \%join_cond,
             { where    => \"me.$left > parent.$left AND me.$right < parent.$right",
               order_by =>  "me.$left",
@@ -38,7 +46,7 @@ sub tree_columns {
         );
 
         $class->has_many(
-            parents => $class,
+            $args->{parents_rel} => $class,
             { %join_cond, },
             { where    => \"child.$left > me.$left AND child.$right < me.$right",
               order_by =>  "me.$right",
@@ -87,7 +95,8 @@ sub insert {
 sub create_related {
     my ($self, $rel, $col_data) = @_;
 
-    if ($rel eq 'children') {
+    my %col_data = %{ $col_data };
+    if ($rel eq $self->tree_columns->{children_rel}) {
         my ($root, $left, $right) = map {
             $self->tree_columns->{"${_}_column"}
         } qw/root left right/;
@@ -100,10 +109,10 @@ sub create_related {
             $right => \"CASE WHEN $right >= $p_rgt THEN $right + 2 ELSE $right END",
         });
 
-        @$col_data{$root, $left, $right} = ($self->$root, $p_rgt, $p_rgt + 1);
+        @col_data{$root, $left, $right} = ($self->$root, $p_rgt, $p_rgt + 1);
     }
 
-    return $self->next::method($rel => $col_data);
+    return $self->next::method($rel => \%col_data);
 }
 
 sub search_related {
@@ -111,10 +120,10 @@ sub search_related {
     my $pk = ($self->result_source->primary_columns)[0];
 
     $cond ||= {};
-    if ($rel eq 'children') {
+    if ($rel eq $self->tree_columns->{children_rel}) {
         $cond->{"parent.$pk"} = $self->$pk,
     }
-    elsif ($rel eq 'parents') {
+    elsif ($rel eq $self->tree_columns->{parents_rel}) {
         $cond->{"child.$pk"} = $self->$pk,
     }
 
