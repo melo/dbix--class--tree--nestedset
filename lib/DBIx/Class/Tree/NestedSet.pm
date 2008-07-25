@@ -16,6 +16,7 @@ sub tree_columns {
             nodes_rel    => 'nodes',
             children_rel => 'children',
             parents_rel  => 'parents',
+            parent_rel   => 'parent',
             %{ $args },
         };
 
@@ -53,16 +54,18 @@ sub tree_columns {
               from     =>  "$table me, $table child" },
         );
 
+        {
+            no strict 'refs';
+            no warnings 'redefine';
+
+            my $meth = $args->{parents_rel};
+            *{ "${class}::${\$args->{parent_rel}}" } = sub { shift->$meth(@_)->first };
+        }
+
         $class->_tree_columns($args);
     }
 
     return $class->_tree_columns;
-}
-
-sub parent {
-    my ($self) = @_;
-
-    return $self->parents->first;
 }
 
 sub insert {
