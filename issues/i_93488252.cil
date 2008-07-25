@@ -1,0 +1,8 @@
+Summary: Support compound primary keys
+Status: New
+CreatedBy: Florian Ragwitz <rafl@debian.org>
+AssignedTo: 
+Inserted: 2008-07-25T01:11:12
+Updated: 2008-07-25T01:11:42
+
+Currently ($result_source->primary_columns)[0] is hardcoded in several places.
