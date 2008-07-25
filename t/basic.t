@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Test::More tests => 22;
+use Test::More tests => 23;
 use DBICx::TestDatabase;
 
 use FindBin;
@@ -17,6 +17,7 @@ isa_ok($trees, 'DBIx::Class::ResultSet');
 my $root = $trees->create({ content => 'foo' });
 isa_ok($root, 'DBIx::Class::Row');
 
+is($root->parent, undef, 'root has no parent');
 is($root->root->id, $root->id, 'root field gets set automatically');
 is($root->children->count, 0, 'no children, initially');
 is($root->nodes->count, 1, 'nodes include self');
