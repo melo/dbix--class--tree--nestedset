@@ -8,12 +8,6 @@ use parent 'DBIx::Class';
 __PACKAGE__->load_components(qw/Tree::NestedSet Core/);
 __PACKAGE__->table('tree');
 
-__PACKAGE__->tree_columns({
-    root_column  => 'root',
-    left_column  => 'lft',
-    right_column => 'rgt',
-});
-
 __PACKAGE__->add_columns(
     id => {
         data_type         => 'integer',
@@ -29,5 +23,11 @@ __PACKAGE__->add_columns(
 );
 
 __PACKAGE__->set_primary_key(qw/id/);
+
+__PACKAGE__->tree_columns({
+    root_column  => 'root',
+    left_column  => 'lft',
+    right_column => 'rgt',
+});
 
 1;
