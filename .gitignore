@@ -1,3 +1,10 @@
 .*
 !.cil
 !.gitignore
+pm_to_blib
+blib
+Makefile*
+!Makefile.PL
+cover_db
+META.yml
+inc
