@@ -99,12 +99,18 @@ sub insert {
 sub create_related {
     my ($self, $rel, $col_data) = @_;
 
-    my %col_data = %{ $col_data };
-    if ($rel eq $self->tree_columns->{children_rel}) {
-        my ($root, $left, $right) = map {
-            $self->tree_columns->{"${_}_column"}
-        } qw/root left right/;
+    if ($rel ne $self->tree_columns->{children_rel}) {
+        return $self->next::method($rel => $col_data);
+    }
 
+    my %col_data = %{ $col_data };
+    my ($root, $left, $right) = map {
+        $self->tree_columns->{"${_}_column"}
+    } qw/root left right/;
+
+    my $row;
+    my $get_row = $self->next::can;
+    $self->result_source->schema->txn_do(sub {
         $self->discard_changes;
         my $p_rgt = $self->$right;
 
@@ -114,9 +120,10 @@ sub create_related {
         });
 
         @col_data{$root, $left, $right} = ($self->$root, $p_rgt, $p_rgt + 1);
-    }
+        $row = $get_row->($self, $rel => \%col_data);
+    });
 
-    return $self->next::method($rel => \%col_data);
+    return $row;
 }
 
 sub search_related {
