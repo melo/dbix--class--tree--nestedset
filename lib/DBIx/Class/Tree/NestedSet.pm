@@ -92,6 +92,7 @@ sub create_related {
             $self->tree_columns->{"${_}_column"}
         } qw/root left right/;
 
+        $self->discard_changes;
         my $p_rgt = $self->$right;
 
         $self->nodes_rs->update({
