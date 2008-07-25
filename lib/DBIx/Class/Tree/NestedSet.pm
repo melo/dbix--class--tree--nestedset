@@ -107,12 +107,14 @@ sub create_related {
 
 sub search_related {
     my ($self, $rel, $cond, @rest) = @_;
+    my $pk = ($self->result_source->primary_columns)[0];
 
+    $cond ||= {};
     if ($rel eq 'children') {
-        my $pk = ($self->result_source->primary_columns)[0];
-
-        $cond ||= {};
         $cond->{"parent.$pk"} = $self->$pk,
+    }
+    elsif ($rel eq 'parents') {
+        $cond->{"child.$pk"} = $self->$pk,
     }
 
     return $self->next::method($rel, $cond, @rest);
