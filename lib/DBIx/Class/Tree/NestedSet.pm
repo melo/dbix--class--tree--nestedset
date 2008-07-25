@@ -66,7 +66,7 @@ sub parent {
 }
 
 sub insert {
-    my $self = shift;
+    my ($self, @args) = @_;
 
     my ($root, $left, $right) = map {
         $self->tree_columns->{"${_}_column"}
@@ -79,15 +79,19 @@ sub insert {
         });
     }
 
-    my $row  = $self->next::method(@_);
+    my $row;
+    my $get_row = $self->next::can;
+    $self->result_source->schema->txn_do(sub {
+        $row = $get_row->($self, @args);
 
-    if (!defined $row->$root) {
-        $row->update({
-            $root => $row->get_column( ($row->result_source->primary_columns)[0] ),
-        });
+        if (!defined $row->$root) {
+            $row->update({
+                $root => $row->get_column( ($row->result_source->primary_columns)[0] ),
+            });
 
-        $row->discard_changes;
-    }
+            $row->discard_changes;
+        }
+    });
 
     return $row;
 }
