@@ -16,7 +16,7 @@ sub tree_columns {
         } qw/root left right/;
 
         my $table     = $class->table;
-        my %join_cond = { "foreign.$root" => "me.$root" };
+        my %join_cond = ( "foreign.$root" => "self.$root" );
 
         $class->belongs_to(
             root => $class,
