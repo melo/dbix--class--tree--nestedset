@@ -57,4 +57,46 @@ sub parent {
     return $self->parents->first;
 }
 
+sub insert {
+    my $self = shift;
+
+    my ($root, $left, $right) = map {
+        $self->tree_columns->{"${_}_column"}
+    } qw/root left right/;
+
+    if (!$self->$right) {
+        $self->set_columns({
+            $left  => 1,
+            $right => 2,
+        });
+    }
+
+    my $row  = $self->next::method(@_);
+
+    $row->update({
+        $root => $row->get_column( ($row->result_source->primary_columns)[0] ),
+    }) unless defined $row->$root;
+
+    return $row;
+}
+
+sub create_related {
+    my ($self, $rel, $col_data) = @_;
+
+    my ($root, $left, $right) = map {
+        $self->tree_columns->{"${_}_column"}
+    } qw/root left right/;
+
+    my $p_rgt = $self->$right;
+
+    $self->nodes_rs->update({
+        $left  => \"CASE WHEN $left  >  $p_rgt THEN $left  + 2 ELSE $left  END",
+        $right => \"CASE WHEN $right >= $p_rgt THEN $right + 2 ELSE $right END",
+    });
+
+    @$col_data{$root, $left, $right} = ($self->$root, $p_rgt, $p_rgt + 1);
+
+    return $self->next::method($rel => $col_data);
+}
+
 1;
