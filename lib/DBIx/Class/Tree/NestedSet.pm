@@ -5,7 +5,7 @@ package DBIx::Class::Tree::NestedSet;
 
 use parent 'DBIx::Class';
 
-__PACKAGE__->mk_classdata( _tree_columns => 'foo' );
+__PACKAGE__->mk_classdata( _tree_columns => {} );
 
 sub tree_columns {
     my ($class, $args) = @_;
