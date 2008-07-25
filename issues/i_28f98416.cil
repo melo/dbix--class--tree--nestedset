@@ -1,0 +1,11 @@
+Summary: Make reparenting work
+Status: New
+CreatedBy: Florian Ragwitz <rafl@debian.org>
+AssignedTo: 
+Inserted: 2008-07-24T20:54:11
+Updated: 2008-07-24T20:55:24
+
+$row->create_related(parent => ...) should work.
+
+I'd need to reparent $row to the new row and set the parent of the new row to
+$rows previous parent.

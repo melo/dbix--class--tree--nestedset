@@ -1,0 +1,8 @@
+Summary: Support inserting children at any position
+Status: New
+CreatedBy: Florian Ragwitz <rafl@debian.org>
+AssignedTo: 
+Inserted: 2008-07-24T20:56:40
+Updated: 2008-07-24T20:58:37
+
+$row->add_to_children_{before,after}($child, \%coldata)
